@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  applications  Application[]
+  contacts      Contact[]
+}
+
+model Company {
+  id            String         @id @default(uuid())
+  name          String
+  website       String?
+  industry      String?
+  size          String?
+  location      String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  applications  Application[]
+  contacts      Contact[]
+}
+
+model Application {
+  id            String         @id @default(uuid())
+  position      String
+  status        String        // Applied, Interview, Offer, Rejected
+  appliedDate   DateTime
+  jobPostingUrl String?
+  description   String?
+  salary        String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  companyId     String
+  user          User           @relation(fields: [userId], references: [id])
+  company       Company        @relation(fields: [companyId], references: [id])
+  interviews    Interview[]
+}
+
+model Contact {
+  id            String         @id @default(uuid())
+  name          String
+  title         String?
+  email         String?
+  phone         String?
+  linkedinUrl   String?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  userId        String
+  companyId     String
+  user          User           @relation(fields: [userId], references: [id])
+  company       Company        @relation(fields: [companyId], references: [id])
+}
+
+model Interview {
+  id            String         @id @default(uuid())
+  type          String        // Phone, Technical, Behavioral, etc.
+  date          DateTime
+  duration      Int?          // in minutes
+  location      String?       // Can be URL for virtual interviews
+  notes         String?
+  feedback      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  applicationId String
+  application   Application    @relation(fields: [applicationId], references: [id])
+} 
